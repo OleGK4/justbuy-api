@@ -1,5 +1,9 @@
 <?php
 
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CartController;
+use App\Http\Controllers\OrderController;
+use App\Http\Controllers\ProductController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
@@ -16,9 +20,27 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+
+// Authentication
+Route::prefix('auth')->group(function () {
+    Route::post('/register', [AuthController::class, 'store']);
+    Route::post('/login', [AuthController::class, 'index']);
+    Route::get('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
 });
 
-Route::get('/users', [UserController::class, 'index']);
-Route::get('/roles', [RoleController::class, 'index']);
+// Store interaction
+Route::prefix('store')->group(function (){
+    Route::get('/products', [ProductController::class, 'index']);
+    Route::middleware('auth:sanctum')->group(function(){
+        Route::apiResource('cart', CartController::class);
+        Route::apiResource('orders', OrderController::class);
+    });
+});
+
+// Admin panel
+Route::prefix('admin')->group(function(){
+    Route::middleware('auth:sanctum')->group(function(){
+        Route::apiResource('products', ProductController::class)
+            ->middleware('isAdmin');
+    });
+});

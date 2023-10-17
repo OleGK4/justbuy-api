@@ -2,28 +2,50 @@
 
 ## Build the project
 
-### Composer
+
+1. Copy file *docker-compose.yml* from
+```
+/deploy
+```
+and paste it into 
 
 ```
-composer update
-composer install
+/project/justbuy-api
 ```
 
-### Start local server
-Be careful with DB settings!
+2. Go into this directory
+```
+cd justbuy-api/project/justbuy-api
+```
+3. Set the alias
+```
+alias sail='[ -f sail ] && sh sail || sh vendor/bin/sail'
+```
+4. Start the project in detached mode
+```
+sail up -d
+```
+5. Update composer
+```
+sail composer update
+```
+6. Migrate your database
+```
+sail artisan migrate:fresh
+```
+7. Seed the database
+```
+sail artisan db:seed
+```
+<br>
 
-#### Local server on Windows
+And now you can use *Postman collection* from
 ```
-php artisan serve
+/collection
 ```
-#### Local server on Linux
-```
-php artisan serve --host=192.168.13.50 --port=8000
-```
-### DB
+to test this *API*
 
-[comment]: <> (- **[bike-store.zip]&#40;https://github.com/OleGK4/bike-store/files/11731639/bike-store.zip&#41;**)
-
+## Enjoy!
 
 ## Documentation & Manuals
 
