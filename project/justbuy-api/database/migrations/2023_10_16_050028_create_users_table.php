@@ -13,13 +13,10 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->string('full_name');
             $table->string('name');
             $table->foreignId('role_id')
-                ->default(0)
-                ->references('id')->on('roles');
-            $table->string('surname');
-            $table->string('patronymic');
+                ->default(1)
+                ->constrained();
             $table->string('email')->unique();
             $table->string('password');
             $table->timestamps();

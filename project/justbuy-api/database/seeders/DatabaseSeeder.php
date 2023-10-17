@@ -2,21 +2,37 @@
 
 namespace Database\Seeders;
 
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\Cart;
+use App\Models\Product;
+use App\Models\Role;
+use App\Models\User;
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use Illuminate\Database\Eloquent\Factories\Sequence;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {
     /**
-     * Seed the application's database.
+     * Run the database seeds.
      */
     public function run(): void
     {
-         \App\Models\User::factory(10)->create();
+        Role::factory()
+            ->count(3)
+            ->state(new Sequence(
+                ['name' => 'guest'],
+                ['name' => 'client'],
+                ['name' => 'admin']
+            ))
+            ->create();
 
-         \App\Models\User::factory()->create([
-             'name' => 'Test User',
-             'email' => 'test@example.com',
-         ]);
+        User::factory(30)
+            ->has(
+                Cart::factory()->count(1)
+            )
+            ->create();
+
+        Product::factory(30)
+            ->create();
     }
 }
