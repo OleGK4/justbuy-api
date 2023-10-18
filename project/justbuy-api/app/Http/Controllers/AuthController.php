@@ -2,47 +2,73 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+
+    /*
+     * Register new user
+    */
+    public function signup(Request $request)
     {
-        //
+        $validatedData = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|min:6|confirmed',
+        ]);
+
+        $validatedData['password'] = Hash::make($validatedData['password']);
+
+        if ($user = User::create($validatedData)) {
+            return response()->json([
+                'access_token' => $user->createToken($validatedData['email'])->plainTextToken
+            ], 201);
+        }
+
+        return response()->json(null, 404);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+
+    /*
+     * Generate sanctum token on successful login
+    */
+    public function login(Request $request)
     {
-        //
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required',
+        ]);
+
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user || !Hash::check($request->password, $user->password)) {
+            throw ValidationException::withMessages([
+                'email' => ['The provided credentials are incorrect.'],
+            ]);
+        }
+
+        return response()->json([
+            'user' => $user,
+            'access_token' => $user->createToken($request->email)->plainTextToken
+        ], 200);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    /*
+     * Revoke token; only remove token that is used to perform logout (i.e. will not revoke all tokens)
+    */
+    public function logout(Request $request)
     {
-        //
-    }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        // Revoke the token that was used to authenticate the current request
+        $request->user()->currentAccessToken()->delete();
+        return response()->json([
+            'message' => 'Successfully logged out',
+        ], 200);
     }
 }

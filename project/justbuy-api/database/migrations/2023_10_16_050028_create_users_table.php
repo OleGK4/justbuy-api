@@ -19,7 +19,6 @@ return new class extends Migration
                 ->constrained();
             $table->string('email')->unique();
             $table->string('password');
-            $table->timestamps();
         });
     }
 

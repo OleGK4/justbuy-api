@@ -4,23 +4,20 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class ProductController extends Controller
 {
+
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
+        $products = Product::all();
+        return response()->json([
+            'data' => $products
+        ], 200);
     }
 
     /**
@@ -28,23 +25,18 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
-        //
-    }
+        $validatedData = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'required|string',
+            'price' => 'required|integer',
+        ]);
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Product $product)
-    {
-        //
-    }
+        $product = Product::create($validatedData);
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Product $product)
-    {
-        //
+        return response()->json([
+            'id' => $product->id,
+            'message' => 'Product added'
+        ], 201);
     }
 
     /**
@@ -52,7 +44,15 @@ class ProductController extends Controller
      */
     public function update(Request $request, Product $product)
     {
-        //
+        $data = $request->validate([
+            'name' => 'sometimes|string|max:255',
+            'description' => 'sometimes|string',
+            'price' => 'sometimes|integer',
+        ]);
+
+        $product->update($data);
+
+        return response()->json(['data' => $product], 200);
     }
 
     /**
@@ -60,6 +60,10 @@ class ProductController extends Controller
      */
     public function destroy(Product $product)
     {
-        //
+        $product->delete();
+
+        return response()->json([
+            'message' => 'Product deleted'
+        ], 204);
     }
 }
