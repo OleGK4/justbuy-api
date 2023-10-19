@@ -39,7 +39,7 @@ sail artisan db:seed
 ```
 <br>
 
-And now you can use *Postman collection* from
+And now you can use *Postman collection* & *Postman environment* from
 ```
 /collection
 ```

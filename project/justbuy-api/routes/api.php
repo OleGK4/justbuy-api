@@ -30,15 +30,19 @@ Route::prefix('auth')->group(function () {
 Route::prefix('store')->group(function () {
     Route::get('/products', [ProductController::class, 'index']);
     Route::middleware('auth:sanctum')->group(function () {
+        Route::post('cart/{product_id}', [CartController::class, 'store']);
+        Route::delete('cart/{product_id}', [CartController::class, 'destroy']);
         Route::apiResource('cart', CartController::class);
-        Route::apiResource('orders', OrderController::class);
+        Route::apiResource('order', OrderController::class);
     });
 });
 
 // Admin panel
 Route::prefix('admin')->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
-        Route::apiResource('products', ProductController::class)
-            ->middleware('isAdmin');
+        Route::middleware('isAdmin')->group(function(){
+            Route::delete('products/{product_id}', [ProductController::class, 'destroy']);
+            Route::apiResource('products', ProductController::class);
+        });
     });
 });

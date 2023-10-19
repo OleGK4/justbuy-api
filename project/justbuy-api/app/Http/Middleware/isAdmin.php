@@ -3,26 +3,18 @@
 namespace App\Http\Middleware;
 
 use Closure;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Symfony\Component\HttpFoundation\Response;
 
 class isAdmin
 {
-    /**
-     * Handle an incoming request.
-     *
-     * @param Request $request
-     * @param \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
-     * @return JsonResponse
-     */
-    public function handle(Request $request, Closure $next): JsonResponse
+    public function handle(Request $request, Closure $next)
     {
         $user = $request->user();
-        if ($user->role->name === 'admin') {
+
+        if ($user->role && $user->role->name == 'admin') {
             return $next($request);
         } else {
-            return response()->json(['message' => 'Unauthorized'], 403);
+            return response()->json(['message' => 'Forbidden for you!'], 403);
         }
     }
 }

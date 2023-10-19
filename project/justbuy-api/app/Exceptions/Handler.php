@@ -4,6 +4,7 @@ namespace App\Exceptions;
 
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\Routing\Exception\RouteNotFoundException;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -31,5 +32,15 @@ class Handler extends ExceptionHandler
                 ], 404);
             }
         });
+
+    }
+
+    public function render($request, Throwable $e)
+    {
+        if ($e instanceof RouteNotFoundException) {
+            return response()->json(['message' => 'Login failed'], 404);
+        }
+
+        return parent::render($request, $e);
     }
 }

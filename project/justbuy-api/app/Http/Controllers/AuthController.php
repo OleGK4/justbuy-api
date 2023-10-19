@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Cart;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -16,6 +17,13 @@ class AuthController extends Controller
     */
     public function signup(Request $request)
     {
+        $user = User::where('email', $request->email)->first();
+        if ($user) {
+            return response()->json([
+                'message' => 'Email is taken'
+            ]);
+        }
+
         $validatedData = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
@@ -24,7 +32,11 @@ class AuthController extends Controller
 
         $validatedData['password'] = Hash::make($validatedData['password']);
 
-        if ($user = User::create($validatedData)) {
+        $user = User::create($validatedData);
+
+        if ($user) {
+            Cart::create([
+                'user_id' => $user['id']]);
             return response()->json([
                 'access_token' => $user->createToken($validatedData['email'])->plainTextToken
             ], 201);
@@ -48,7 +60,7 @@ class AuthController extends Controller
 
         if (!$user || !Hash::check($request->password, $user->password)) {
             throw ValidationException::withMessages([
-                'email' => ['The provided credentials are incorrect.'],
+                'message' => ['The provided credentials are incorrect.'],
             ]);
         }
 
